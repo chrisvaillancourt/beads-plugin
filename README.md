@@ -11,6 +11,12 @@ Workflow patterns for [beads](https://github.com/steveyegge/beads) issue trackin
 - Session close protocol (sync and push before claiming done)
 - Dependency direction ("needs" not "comes before")
 - Core `bd` command reference
+- Issue types and priorities
+- Git worktree support
+
+**Supplementary docs** (not loaded with skill):
+- [Setup & Configuration](skills/beads-workflow/docs/setup.md) - Installation, daemon config, architecture
+- [CLI Reference](skills/beads-workflow/docs/cli-reference.md) - Complete command reference
 
 ## Installation
 

@@ -11,6 +11,8 @@ Track work in beads (`bd`), not markdown TODOs or TodoWrite.
 
 **Core principle:** Work is not done until synced and pushed.
 
+**Agent convention:** Always use `--json` flag on bd commands for reliable parsing.
+
 ## Session Close Protocol
 
 **CRITICAL: Before claiming "done" or "complete":**
@@ -46,22 +48,47 @@ bd dep add phase2 phase1
 
 | Action | Command |
 |--------|---------|
-| Find ready work | `bd ready` |
-| Claim work | `bd update <id> --status=in_progress` |
-| Complete work | `bd close <id>` |
-| Close multiple | `bd close <id1> <id2> ...` |
+| Find ready work | `bd ready --json` |
+| Find stale work | `bd stale --days 30 --json` |
+| Check system | `bd info --json` |
+| Claim work | `bd update <id> --status=in_progress --json` |
+| Complete work | `bd close <id> --reason="Done" --json` |
+| Batch update | `bd update <id1> <id2> --status=in_progress --json` |
+| Batch close | `bd close <id1> <id2> --reason="Done" --json` |
 | Add dependency | `bd dep add <issue> <depends-on>` |
-| Show blocked | `bd blocked` |
+| Show blocked | `bd blocked --json` |
+| Find duplicates | `bd duplicates --json` |
 | Force sync | `bd sync` |
 
 ## Creating Issues
 
 ```bash
-bd create "Title" --type=task --description="Why, what, how"
-bd create "Title" --deps discovered-from:<parent-id>  # Link to parent
+bd create "Title" --type=task --description="Why, what, how" --json
+bd create "Title" --type=bug -p 1 -l backend,urgent --json
+bd create "Title" --deps discovered-from:<parent-id> --json  # Link to parent
 ```
 
 **Always include descriptions** - issues without context waste future time.
+
+### Issue Types
+
+| Type | Use Case |
+|------|----------|
+| `bug` | Defects requiring fix |
+| `feature` | New functionality |
+| `task` | General work (tests, docs, refactoring) |
+| `epic` | Large features with subtasks |
+| `chore` | Maintenance work |
+
+### Priorities
+
+| Priority | Meaning |
+|----------|---------|
+| `0` | Critical (security, data loss, build broken) |
+| `1` | High (major features, blocking work) |
+| `2` | Medium (default) |
+| `3` | Low (polish, optimization) |
+| `4` | Backlog (future ideas) |
 
 ## Common Mistakes
 
@@ -72,6 +99,7 @@ bd create "Title" --deps discovered-from:<parent-id>  # Link to parent
 | Using TodoWrite | Use `bd create` instead |
 | Creating issues without descriptions | Always include `--description` |
 | Forgetting discovered work link | Use `--deps discovered-from:<id>` |
+| Omitting `--json` flag | Always use `--json` for agent operations |
 
 ## Red Flags - STOP
 
@@ -83,8 +111,18 @@ bd create "Title" --deps discovered-from:<parent-id>  # Link to parent
 ## Session Start
 
 ```bash
-bd ready           # Find unblocked work
-bd show <id>       # Review issue details
+bd ready --json    # Find unblocked work
+bd show <id> --json # Review issue details
+```
+
+## Git Worktrees
+
+Daemon mode doesn't work with git worktrees. Use:
+
+```bash
+BEADS_NO_DAEMON=1 bd <command>
+# Or
+bd --no-daemon <command>
 ```
 
 ## When NOT to Use

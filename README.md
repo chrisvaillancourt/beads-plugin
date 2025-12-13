@@ -1,12 +1,12 @@
-# Claude Code Skills
+# Beads Plugin
 
-Personal collection of Claude Code skills.
+Claude Code plugin for [beads](https://github.com/steveyegge/beads) issue tracking workflows.
 
 ## Skills
 
 ### beads-workflow
 
-Workflow patterns for [beads](https://github.com/steveyegge/beads) issue tracking:
+Workflow patterns for beads issue tracking:
 
 - Session close protocol (sync and push before claiming done)
 - Dependency direction ("needs" not "comes before")
@@ -23,16 +23,18 @@ Workflow patterns for [beads](https://github.com/steveyegge/beads) issue trackin
 Add to your Claude Code plugins:
 
 ```bash
-claude plugins add chrisvaillancourt/claude-code-skills
-```
+# From GitHub
+/plugin add chrisvaillancourt/beads-plugin
 
-Or clone and symlink:
-
-```bash
-git clone https://github.com/chrisvaillancourt/claude-code-skills.git
-ln -s /path/to/claude-code-skills ~/.claude/plugins/chris-skills
+# Or clone and add locally
+git clone https://github.com/chrisvaillancourt/beads-plugin.git
+/plugin add /path/to/beads-plugin
 ```
 
 ## Usage
 
-Skills are automatically available in Claude Code conversations. Reference them with the Skill tool or they'll be suggested when relevant.
+The skill is automatically available in Claude Code conversations when working in projects with a `.beads/` directory. Reference it with the Skill tool or it will be suggested when relevant.
+
+## License
+
+MIT

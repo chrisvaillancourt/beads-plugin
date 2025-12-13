@@ -1,0 +1,12 @@
+{
+  "name": "beads-plugin",
+  "version": "0.1.0",
+  "description": "Workflow patterns for beads issue tracking with Claude Code",
+  "author": {
+    "name": "Chris Vaillancourt"
+  },
+  "homepage": "https://github.com/chrisvaillancourt/beads-plugin",
+  "repository": "https://github.com/chrisvaillancourt/beads-plugin",
+  "license": "MIT",
+  "keywords": ["beads", "issue-tracking", "workflow"]
+}

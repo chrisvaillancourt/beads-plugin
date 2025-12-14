@@ -51,6 +51,8 @@ bd dep add phase2 phase1
 | Find ready work | `bd ready --json` |
 | Find stale work | `bd stale --days 30 --json` |
 | Check system | `bd info --json` |
+| Verify setup | `bd doctor --json` |
+| Agent onboarding | `bd onboard` |
 | Claim work | `bd update <id> --status=in_progress --json` |
 | Complete work | `bd close <id> --reason="Done" --json` |
 | Batch update | `bd update <id1> <id2> --status=in_progress --json` |

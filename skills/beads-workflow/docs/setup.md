@@ -249,6 +249,36 @@ bd --no-daemon <command>
 
 ## Claude Code Integration
 
+### Setup Hooks
+
+Install SessionStart and PreCompact hooks:
+
+```bash
+bd setup claude
+```
+
+This automatically adds `bd prime` to your `~/.claude/settings.json`, which:
+- Injects workflow context (~1-2k tokens) at session start
+- Refreshes context before conversation compaction
+
+### Verify Setup
+
+```bash
+bd doctor
+```
+
+Checks that hooks are properly installed and beads is healthy.
+
+### Remove Hooks
+
+If you need to remove the Claude Code integration:
+
+```bash
+bd setup claude --remove
+```
+
+### How It Works
+
 Claude Code uses `bd` commands directly via the CLI. The session start hook (`bd prime`) injects workflow context into Claude's system prompt automatically when a `.beads/` directory is detected.
 
 Beads deliberately uses CLI + hooks instead of MCP servers for context efficiency (~1-2k tokens vs 10-50k for MCP tool schemas).

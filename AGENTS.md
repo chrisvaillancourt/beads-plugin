@@ -1,0 +1,54 @@
+# Agent instructions
+This file provides guidance to agents when working with code in this repository.
+
+## Project Overview
+This is a **Claude Code plugin** that provides a skill teaching Claude about beads issue tracking workflows. It's a skill-based plugin (not an MCP server), meaning it packages workflow knowledge and best practices rather than providing executable tools.
+
+**Key distinction:** This is separate from the [official beads plugin](https://github.com/steveyegge/beads/blob/main/docs/PLUGIN.md), which is an MCP server providing slash commands (`/bd-init`, `/bd-ready`, etc.). Both can be used together - this skill teaches methodology, the official plugin provides integration.
+
+## Repository Structure
+```
+.claude-plugin/
+  plugin.json          # Plugin metadata for Claude Code
+skills/
+  beads-workflow/
+    SKILL.md           # Main skill file with workflow patterns
+    docs/
+      setup.md         # Installation and daemon configuration
+      cli-reference.md # Complete bd command reference
+```
+
+## Core Architecture
+This plugin follows the Claude Code skills pattern:
+
+- **Plugin manifest**: `.claude-plugin/plugin.json` defines metadata
+- **Skill file**: `skills/beads-workflow/SKILL.md` contains the workflow guidance that Claude reads when working in beads projects
+- **Supporting docs**: Additional documentation in `docs/` directory (not loaded with skill, reference only)
+
+The skill is **model-invoked** - Claude automatically uses it when working in projects with a `.beads/` directory.
+
+## Working with Skill Files
+When editing `skills/beads-workflow/SKILL.md`:
+
+1. **Front matter is critical**: The `name` and `description` fields control when Claude invokes the skill
+2. **Description must be specific**: It determines auto-discovery - be precise about when to use the skill
+3. **Use tables and checklists**: Skills benefit from scannable formats
+4. **Include anti-patterns**: "Common Mistakes" and "Red Flags" sections prevent errors
+5. **Convention over configuration**: Document the `--json` flag convention for agent operations
+
+## Testing Changes
+After modifying the skill:
+
+1. Reload the plugin: `/plugin reload beads-plugin` (or restart Claude Code)
+2. Test in a project with a `.beads/` directory to verify auto-invocation
+3. Check that the skill description triggers in relevant contexts
+
+## Git Workflow
+Follow conventional commits style (see recent commits):
+- `docs:` for documentation changes
+- `feat:` for new skill content
+- `refactor:` for restructuring
+- `chore:` for maintenance
+
+## Beads Integration
+This repository itself can use beads for task tracking. If `.beads/` directory exists, use the skill's own guidance for managing issues.

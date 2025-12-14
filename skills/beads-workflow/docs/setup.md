@@ -23,6 +23,20 @@ This creates:
 - `.beads/` directory with database and config
 - Git hooks for synchronization
 
+### Initialization Modes
+
+Different workflows support different initialization modes:
+
+| Mode | Command | Use Case |
+|------|---------|----------|
+| **Basic** | `bd init` | Simple setup for solo projects |
+| **Team** | `bd init --team` | Interactive wizard for team collaboration (sets up sync-branch) |
+| **OSS Contributor** | `bd init --contributor` | Interactive wizard for contributing to open source projects |
+| **Protected Branch** | `bd init --branch beads-metadata` | Keep beads commits on separate protected branch |
+| **Stealth** | `bd init --stealth` | Personal use without affecting repo (uses global gitignore) |
+
+The interactive wizards (team, contributor) prompt you through workflow decisions. For details, see the [official Beads documentation](https://github.com/steveyegge/beads/tree/main/docs).
+
 ## Architecture
 
 ```

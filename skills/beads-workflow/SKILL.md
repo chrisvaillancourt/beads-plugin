@@ -5,6 +5,8 @@ description: Use when working in any project with .beads/ directory, at session 
 
 # Beads Workflow
 
+> **Note:** If `bd prime` context was injected at session start (via `bd setup claude` hooks), you already have this workflow knowledge. This skill provides the same guidance for users who prefer skills over hooks.
+
 ## Overview
 
 Track work in beads (`bd`), not markdown TODOs or TodoWrite.

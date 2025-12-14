@@ -2,18 +2,59 @@
 
 Custom Claude Code plugin that provides [beads](https://github.com/steveyegge/beads) workflow patterns as a skill.
 
+> **⚠️ Recommendation: Use the official hooks instead**
+>
+> Beads has built-in Claude Code integration via `bd setup claude` that installs hooks running `bd prime`. This approach is superior because:
+> - **Dynamic**: Generates context based on your actual project state
+> - **Conditional**: Only injects tokens when `.beads/` directory exists
+> - **Adaptive**: Adjusts output for MCP mode, branch type, etc.
+>
+> See [Official Integration](#official-integration-recommended) below.
+
 ## What is this?
 
-This is a **custom Claude Code plugin** that provides a **skill** teaching Claude about beads issue tracking workflows. Skills are model-invoked capabilities that package expertise and workflow guidance - Claude automatically uses them when relevant to your task.
+This is a **custom Claude Code plugin** that provides a **skill** teaching Claude about beads issue tracking workflows. Skills are model-invoked capabilities that package expertise and workflow guidance.
 
-### Skill vs MCP Server
+### When to Use This Plugin
 
-This project is distinct from the [official beads plugin](https://github.com/steveyegge/beads/blob/main/docs/PLUGIN.md):
+This skill-based approach is **not recommended** for most users. Consider it only if:
 
-- **This plugin** (skill-based): Provides workflow knowledge, best practices, and command reference for working with beads. Teaches Claude *how* and *when* to use beads effectively.
-- **Official plugin** (MCP server): Provides slash commands (`/bd-init`, `/bd-ready`, etc.) and tools for executing beads CLI operations. Enables Claude to *interact with* beads infrastructure.
+- You don't want to install global hooks in `~/.claude/settings.json`
+- You prefer model-invoked skills over automatic hook injection
+- You want to learn about beads workflow without having beads installed
 
-Both can be used together: this skill teaches the methodology, while the official MCP server provides the integration.
+### Official Integration (Recommended)
+
+The beads project provides built-in Claude Code integration:
+
+```bash
+# Install beads hooks (recommended approach)
+bd setup claude
+
+# Verify installation
+bd doctor
+```
+
+This installs `SessionStart` and `PreCompact` hooks that run `bd prime`, which:
+1. Checks if current directory has `.beads/` - exits silently if not
+2. Generates ~1-2k tokens of dynamic workflow context if it is
+3. Re-injects context before compaction so Claude doesn't forget
+
+### How This Plugin Differs
+
+| Aspect | Official Hooks (`bd prime`) | This Plugin (skill) |
+|--------|----------------------------|---------------------|
+| **Trigger** | Automatic at session start | Model-invoked (Claude decides) |
+| **Detection** | Checks `.beads/` directory | Relies on description matching |
+| **Context** | Dynamic (knows your issues) | Static (same content always) |
+| **Adapts to** | MCP mode, branch type | Nothing |
+| **Token cost when not relevant** | Zero (silent exit) | Zero (not loaded) |
+
+### Relationship to Other Beads Integrations
+
+- **`bd setup claude`** (hooks): Recommended. Dynamic context injection via `bd prime`
+- **Official MCP plugin**: Optional. Provides slash commands (`/bd-ready`, `/bd-create`) and MCP tools
+- **This plugin** (skill): Alternative for users who prefer skills over hooks
 
 ## Skills
 

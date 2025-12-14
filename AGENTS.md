@@ -4,7 +4,14 @@ This file provides guidance to agents when working with code in this repository.
 ## Project Overview
 This is a **Claude Code plugin** that provides a skill teaching Claude about beads issue tracking workflows. It's a skill-based plugin (not an MCP server), meaning it packages workflow knowledge and best practices rather than providing executable tools.
 
-**Key distinction:** This is separate from the [official beads plugin](https://github.com/steveyegge/beads/blob/main/docs/PLUGIN.md), which is an MCP server providing slash commands (`/bd-init`, `/bd-ready`, etc.). Both can be used together - this skill teaches methodology, the official plugin provides integration.
+**Important context:** The official beads project recommends using `bd setup claude` which installs hooks that run `bd prime` for dynamic context injection. That approach is superior because:
+- `bd prime` checks for `.beads/` directory and exits silently if not found (no wasted tokens)
+- It generates dynamic context based on actual project state
+- It adapts to MCP mode, branch type, etc.
+
+This skill-based plugin is an **alternative** for users who prefer skills over hooks, or want to learn about beads without installing hooks globally.
+
+**Key distinction:** This is separate from the [official beads plugin](https://github.com/steveyegge/beads/blob/main/docs/PLUGIN.md), which is an MCP server providing slash commands (`/bd-init`, `/bd-ready`, etc.).
 
 ## Repository Structure
 ```

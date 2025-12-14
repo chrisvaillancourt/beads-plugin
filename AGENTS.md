@@ -59,3 +59,36 @@ Follow conventional commits style (see recent commits):
 
 ## Beads Integration
 This repository itself can use beads for task tracking. If `.beads/` directory exists, use the skill's own guidance for managing issues.
+
+## Recommendations for Using Beads in Other Projects
+
+If you want to use beads in your own projects (not this skill), see the example template at [examples/AGENTS-beads-template.md](examples/AGENTS-beads-template.md).
+
+### Quick Setup
+
+```bash
+# 1. Initialize beads in your project
+bd init                    # or bd init --team for collaboration
+
+# 2. Install Claude hooks (one-time, global)
+bd setup claude
+
+# 3. Verify
+bd doctor
+```
+
+### Minimal AGENTS.md Addition
+
+For most projects, add only this to your AGENTS.md:
+
+```markdown
+## Issue Tracking
+
+This project uses [beads](https://github.com/steveyegge/beads) (`bd` command).
+
+Run `bd onboard` on first session.
+
+**Session end:** Always run `bd sync && git push` before claiming done.
+```
+
+The `bd prime` hooks handle workflow injection automatically. Only add more documentation if agents consistently forget steps or your project has custom conventions.

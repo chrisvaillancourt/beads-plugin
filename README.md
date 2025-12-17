@@ -117,6 +117,15 @@ git push
 - **Version:** 0.30.2
 - **License:** MIT (same as upstream)
 
+## Team Setup with Worktrees
+
+For team repos with multiple contributors and git worktrees, see [templates/BEADS-TEAM-SETUP.md](templates/BEADS-TEAM-SETUP.md).
+
+Key points:
+- Use sync branch (`beads-sync`) to keep beads commits separate
+- Disable daemon in worktrees: `export BEADS_NO_DAEMON=1`
+- Always complete "landing the plane" protocol before ending sessions
+
 ## See Also
 
 - [beads repo](https://github.com/steveyegge/beads) - The official beads project

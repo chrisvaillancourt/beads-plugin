@@ -15,6 +15,10 @@ skills/
     references/         # Reference docs (mirrored from upstream)
 scripts/
   sync-upstream.sh      # Script to update from upstream
+  validate.sh           # Validate plugin structure
+  check-drift.sh        # Check for upstream changes
+templates/
+  BEADS-TEAM-SETUP.md   # Setup guide for team repos with worktrees
 .beads/                 # Beads issue tracking for this project
 ```
 

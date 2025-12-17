@@ -1,7 +1,7 @@
 {
   "name": "beads-skill",
   "version": "0.30.2",
-  "description": "Official beads skill for Claude Code - issue tracking without MCP overhead. Mirrors steveyegge/beads skills/beads/ content.",
+  "description": "Official beads skill for Claude Code - issue tracking without MCP overhead. Mirrors steveyegge/beads skills/beads/ content (upstream version 0.30.2).",
   "author": {
     "name": "Chris Vaillancourt"
   },
@@ -13,10 +13,5 @@
     "issue-tracking",
     "workflow",
     "skill"
-  ],
-  "upstream": {
-    "repo": "https://github.com/steveyegge/beads",
-    "path": "skills/beads",
-    "version": "0.30.2"
-  }
+  ]
 }

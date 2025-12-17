@@ -53,7 +53,7 @@ fi
 
 # Get versions
 LOCAL_BD_VERSION=$(bd version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
-CURRENT_PLUGIN_VERSION=$(jq -r '.upstream.version // "unknown"' "$PROJECT_ROOT/.claude-plugin/plugin.json")
+CURRENT_PLUGIN_VERSION=$(jq -r '.version // "unknown"' "$PROJECT_ROOT/.claude-plugin/plugin.json")
 
 echo "Local bd version:     $LOCAL_BD_VERSION"
 echo "Current plugin version: $CURRENT_PLUGIN_VERSION"
@@ -123,13 +123,24 @@ if [ $STALE_COUNT -eq 0 ]; then
     log_info "No stale files found"
 fi
 
-# Update version in plugin.json
+# Update version in plugin.json and marketplace.json
 echo ""
-echo "Updating plugin.json..."
+echo "Updating plugin.json and marketplace.json..."
 tmp=$(mktemp)
-jq --arg v "$LOCAL_BD_VERSION" '.version = $v | .upstream.version = $v' "$PROJECT_ROOT/.claude-plugin/plugin.json" > "$tmp"
+
+# Update plugin.json - version and description with upstream version
+jq --arg v "$LOCAL_BD_VERSION" '
+  .version = $v |
+  .description = "Official beads skill for Claude Code - issue tracking without MCP overhead. Mirrors steveyegge/beads skills/beads/ content (upstream version \($v))."
+' "$PROJECT_ROOT/.claude-plugin/plugin.json" > "$tmp"
 mv "$tmp" "$PROJECT_ROOT/.claude-plugin/plugin.json"
-log_info "Version set to $LOCAL_BD_VERSION"
+log_info "plugin.json version set to $LOCAL_BD_VERSION"
+
+# Update marketplace.json - version in plugins array
+tmp=$(mktemp)
+jq --arg v "$LOCAL_BD_VERSION" '.plugins[0].version = $v' "$PROJECT_ROOT/.claude-plugin/marketplace.json" > "$tmp"
+mv "$tmp" "$PROJECT_ROOT/.claude-plugin/marketplace.json"
+log_info "marketplace.json version set to $LOCAL_BD_VERSION"
 
 # Summary
 echo ""
@@ -145,7 +156,7 @@ echo ""
 # Show git diff summary
 if command -v git &> /dev/null && [ -d "$PROJECT_ROOT/.git" ]; then
     echo "Changes detected:"
-    git -C "$PROJECT_ROOT" diff --stat skills/ .claude-plugin/plugin.json 2>/dev/null || true
+    git -C "$PROJECT_ROOT" diff --stat skills/ .claude-plugin/ 2>/dev/null || true
     echo ""
 fi
 

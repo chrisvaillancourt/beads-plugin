@@ -61,12 +61,51 @@ else
             fi
         done
 
-        # Check upstream tracking
-        upstream_version=$(jq -r '.upstream.version // empty' "$PLUGIN_JSON")
-        if [ -z "$upstream_version" ]; then
-            log_warn "plugin.json missing upstream.version (can't track drift)"
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+# 1b. Validate marketplace.json
+# -----------------------------------------------------------------------------
+echo ""
+echo "Checking marketplace.json..."
+
+MARKETPLACE_JSON="$PROJECT_ROOT/.claude-plugin/marketplace.json"
+
+if [ ! -f "$MARKETPLACE_JSON" ]; then
+    log_fail "marketplace.json not found at $MARKETPLACE_JSON"
+else
+    # Check valid JSON
+    if ! jq empty "$MARKETPLACE_JSON" 2>/dev/null; then
+        log_fail "marketplace.json is not valid JSON"
+    else
+        log_pass "marketplace.json is valid JSON"
+
+        # Check required fields
+        for field in name description; do
+            value=$(jq -r ".$field // empty" "$MARKETPLACE_JSON")
+            if [ -z "$value" ]; then
+                log_fail "marketplace.json missing required field: $field"
+            else
+                log_pass "marketplace.json has $field"
+            fi
+        done
+
+        # Check plugins array
+        plugin_count=$(jq '.plugins | length' "$MARKETPLACE_JSON")
+        if [ "$plugin_count" -eq 0 ]; then
+            log_fail "marketplace.json has no plugins defined"
         else
-            log_pass "plugin.json tracks upstream version: $upstream_version"
+            log_pass "marketplace.json has $plugin_count plugin(s)"
+        fi
+
+        # Check version consistency
+        plugin_version=$(jq -r '.version // empty' "$PLUGIN_JSON")
+        marketplace_plugin_version=$(jq -r '.plugins[0].version // empty' "$MARKETPLACE_JSON")
+        if [ "$plugin_version" = "$marketplace_plugin_version" ]; then
+            log_pass "Versions match: $plugin_version"
+        else
+            log_warn "Version mismatch: plugin.json=$plugin_version, marketplace.json=$marketplace_plugin_version"
         fi
     fi
 fi

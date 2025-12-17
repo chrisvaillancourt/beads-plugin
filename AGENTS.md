@@ -8,7 +8,8 @@ This is a **thin wrapper** around the [official beads skill](https://github.com/
 
 ```
 .claude-plugin/
-  plugin.json           # Plugin metadata with upstream version tracking
+  plugin.json           # Plugin metadata
+  marketplace.json      # Marketplace manifest (enables `claude plugin install`)
 skills/
   beads/
     SKILL.md            # Official skill (mirrored from upstream)
@@ -59,6 +60,7 @@ git push
 | Download reference files | ✅ Yes | Downloads all discovered files |
 | Remove stale files | ✅ Yes | Deletes local files not in upstream |
 | Update plugin.json version | ✅ Yes | Sets to local bd version |
+| Update marketplace.json version | ✅ Yes | Keeps in sync with plugin.json |
 | Commit changes | ❌ Manual | You review and commit |
 
 ### What Changes the Script Handles

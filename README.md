@@ -66,7 +66,11 @@ This automatically handles both regular repos and git worktree setups - no manua
 ### 4. Install this plugin
 
 ```bash
-/plugin add chrisvaillancourt/beads-plugin
+# Add the repo as a marketplace (one-time setup)
+claude plugin marketplace add chrisvaillancourt/beads-plugin
+
+# Install the plugin
+claude plugin install beads-skill
 ```
 
 ### 5. Initialize beads in your project

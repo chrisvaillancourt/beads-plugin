@@ -1,94 +1,75 @@
-# Beads Plugin
+# Beads Skill (No MCP)
 
-Custom Claude Code plugin that provides [beads](https://github.com/steveyegge/beads) workflow patterns as a skill.
+Thin wrapper around the [official beads skill](https://github.com/steveyegge/beads/tree/main/skills/beads) for Claude Code users who want the comprehensive skill without the MCP server overhead.
 
-> **⚠️ Recommendation: Use the official hooks instead**
->
-> Beads has built-in Claude Code integration via `bd setup claude` that installs hooks running `bd prime`. This approach is superior because:
-> - **Dynamic**: Generates context based on your actual project state
-> - **Conditional**: Only injects tokens when `.beads/` directory exists
-> - **Adaptive**: Adjusts output for MCP mode, branch type, etc.
->
-> See [Official Integration](#official-integration-recommended) below.
+## Why This Exists
 
-## What is this?
+The official beads plugin includes both a skill AND an MCP server. If you:
 
-This is a **custom Claude Code plugin** that provides a **skill** teaching Claude about beads issue tracking workflows. Skills are model-invoked capabilities that package expertise and workflow guidance.
+- Already have `bd` installed via Homebrew
+- Want the comprehensive skill guidance
+- Don't want MCP protocol overhead (~10-50k tokens vs ~1-2k for CLI)
 
-### When to Use This Plugin
+This plugin provides just the skill.
 
-This skill-based approach is **not recommended** for most users. Consider it only if:
+## What's Included
 
-- You don't want to install global hooks in `~/.claude/settings.json`
-- You prefer model-invoked skills over automatic hook injection
-- You want to learn about beads workflow without having beads installed
+| Content | Source |
+|---------|--------|
+| `skills/beads/SKILL.md` | [Official skill](https://github.com/steveyegge/beads/blob/main/skills/beads/SKILL.md) |
+| `skills/beads/references/` | [Official references](https://github.com/steveyegge/beads/tree/main/skills/beads/references) |
 
-### Official Integration (Recommended)
-
-The beads project provides built-in Claude Code integration:
-
-```bash
-# Install beads hooks (recommended approach)
-bd setup claude
-
-# Verify installation
-bd doctor
-```
-
-This installs `SessionStart` and `PreCompact` hooks that run `bd prime`, which:
-1. Checks if current directory has `.beads/` - exits silently if not
-2. Generates ~1-2k tokens of dynamic workflow context if it is
-3. Re-injects context before compaction so Claude doesn't forget
-
-### How This Plugin Differs
-
-| Aspect | Official Hooks (`bd prime`) | This Plugin (skill) |
-|--------|----------------------------|---------------------|
-| **Trigger** | Automatic at session start | Model-invoked (Claude decides) |
-| **Detection** | Checks `.beads/` directory | Relies on description matching |
-| **Context** | Dynamic (knows your issues) | Static (same content always) |
-| **Adapts to** | MCP mode, branch type | Nothing |
-| **Token cost when not relevant** | Zero (silent exit) | Zero (not loaded) |
-
-### Relationship to Other Beads Integrations
-
-- **`bd setup claude`** (hooks): Recommended. Dynamic context injection via `bd prime`
-- **Official MCP plugin**: Optional. Provides slash commands (`/bd-ready`, `/bd-create`) and MCP tools
-- **This plugin** (skill): Alternative for users who prefer skills over hooks
-
-## Skills
-
-### beads-workflow
-
-Workflow patterns for beads issue tracking:
-
-- Session close protocol (sync and push before claiming done)
-- Dependency direction ("needs" not "comes before")
-- Core `bd` command reference
-- Issue types and priorities
-- Git worktree support
-
-**Supplementary docs** (not loaded with skill):
-- [Setup & Configuration](skills/beads-workflow/docs/setup.md) - Installation, daemon config, architecture
-- [CLI Reference](skills/beads-workflow/docs/cli-reference.md) - Complete command reference
+The skill covers:
+- bd vs TodoWrite decision framework
+- Compaction survival strategies
+- Session start/end protocols
+- Progress checkpointing triggers
+- Field usage (notes, design, acceptance-criteria)
+- Dependency patterns
+- Issue creation guidelines
 
 ## Installation
 
-Add to your Claude Code plugins:
-
 ```bash
-# From GitHub
-/plugin add chrisvaillancourt/beads-plugin
+# Install beads CLI first (if not already)
+brew tap steveyegge/beads
+brew install bd
 
-# Or clone and add locally
-git clone https://github.com/chrisvaillancourt/beads-plugin.git
-/plugin add /path/to/beads-plugin
+# Install this plugin
+/plugin add chrisvaillancourt/beads-plugin
 ```
 
-## Usage
+## Recommended: Also Install Hooks
 
-The skill is automatically available in Claude Code conversations when working in projects with a `.beads/` directory. Reference it with the Skill tool or it will be suggested when relevant.
+For best results, also install the official hooks which run `bd prime` for dynamic context:
 
-## License
+```bash
+bd setup claude
+```
 
-MIT
+The hooks provide dynamic project-specific context, while this skill provides comprehensive reference documentation.
+
+## Updating
+
+This plugin mirrors the official beads skill. To update when beads releases new versions:
+
+```bash
+# Check current version
+cat .claude-plugin/plugin.json | grep upstream -A3
+
+# Update (manual process for now)
+cd /path/to/beads-plugin
+./scripts/sync-upstream.sh  # TODO: create this script
+```
+
+## Upstream
+
+- **Source:** https://github.com/steveyegge/beads/tree/main/skills/beads
+- **Version:** 0.30.2
+- **License:** MIT (same as upstream)
+
+## See Also
+
+- [beads repo](https://github.com/steveyegge/beads) - The official beads project
+- [bd setup claude](https://github.com/steveyegge/beads/blob/main/docs/INSTALLING.md) - Official hooks setup
+- [beads MCP plugin](https://github.com/steveyegge/beads/tree/main/.claude-plugin) - Full plugin with MCP (if you want that)

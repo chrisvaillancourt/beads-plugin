@@ -2,6 +2,8 @@
 
 Copy this file to your team repo and follow the setup steps.
 
+**Using parallel agents with git worktrees?** See [BEADS-PARALLEL-AGENTS.md](BEADS-PARALLEL-AGENTS.md) after completing this setup.
+
 ## Initial Setup (One-Time, by Repo Owner)
 
 ```bash

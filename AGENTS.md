@@ -18,7 +18,8 @@ scripts/
   validate.sh           # Validate plugin structure
   check-drift.sh        # Check for upstream changes
 templates/
-  BEADS-TEAM-SETUP.md   # Setup guide for team repos with worktrees
+  BEADS-TEAM-SETUP.md     # Setup guide for team repos
+  BEADS-PARALLEL-AGENTS.md # Additional setup for parallel agents + worktrees
 .beads/                 # Beads issue tracking for this project
 ```
 

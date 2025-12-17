@@ -1,0 +1,43 @@
+name: Validate Plugin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Validate plugin structure
+        run: ./scripts/validate.sh
+
+      - name: Check for upstream drift
+        run: ./scripts/check-drift.sh
+        # Don't fail on drift, just report
+        continue-on-error: true
+
+  # Optional: Create PR when drift detected
+  # Uncomment to enable automated sync PRs
+  #
+  # sync-check:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'schedule'
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Check and sync
+  #       run: |
+  #         ./scripts/check-drift.sh
+  #         if [ $? -eq 1 ]; then
+  #           ./scripts/sync-upstream.sh
+  #           # Create PR with changes
+  #         fi

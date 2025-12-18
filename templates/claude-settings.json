@@ -1,0 +1,21 @@
+{
+  "$schema": "https://code.claude.com/schemas/settings.json",
+  "_comment": [
+    "Claude Code project settings for bd (beads) automation.",
+    "Copy to .claude/settings.json in your project.",
+    "See: https://code.claude.com/docs/en/hooks"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/session-setup.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

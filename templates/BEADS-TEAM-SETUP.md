@@ -6,8 +6,9 @@ Copy this file to your team repo and follow the setup steps.
 
 ## Initial Setup (One-Time, by Repo Owner)
 
+### Step 1: Initialize beads
+
 ```bash
-# 1. Initialize beads with team wizard
 bd init --team
 ```
 
@@ -17,17 +18,61 @@ The wizard will:
 - Enable auto-sync (daemon commits/pushes)
 - Create AGENTS.md with landing-the-plane instructions
 
+### Step 2: Install hooks
+
 ```bash
-# 2. Install hooks
 bd hooks install
+```
 
-# 3. Apply v0.30.2 hook workaround
-#    Edit .git/hooks/post-checkout line ~77
-#    Change: bd sync --import-only --no-git-history
-#    To:     bd sync --import-only
+### Step 3: Apply v0.30.2 hook workaround
 
-# 4. Commit setup
-git add .beads/ .gitattributes AGENTS.md
+Edit `.git/hooks/post-checkout` line ~77:
+
+```bash
+# Change this:
+if ! output=$(bd sync --import-only --no-git-history 2>&1); then
+
+# To this:
+if ! output=$(bd sync --import-only 2>&1); then
+```
+
+**Tracking:** [steveyegge/beads#608](https://github.com/steveyegge/beads/issues/608)
+
+### Step 4: Track config.yaml in git
+
+Modify `.beads/.gitignore` to track the config file:
+
+```bash
+echo '!config.yaml' >> .beads/.gitignore
+```
+
+**Why:** Ensures `sync-branch` setting is shared across all clones/worktrees.
+
+### Step 5: Create integration setup script
+
+Create `scripts/setup-bd.sh` for database-only settings that don't sync via git:
+
+```bash
+#!/usr/bin/env bash
+set -e
+echo "Configuring bd integrations..."
+bd config set github.org YOUR_ORG
+bd config set github.repo YOUR_REPO
+bd config set jira.url https://YOUR_SITE.atlassian.net/
+echo "Done."
+```
+
+```bash
+chmod +x scripts/setup-bd.sh
+./scripts/setup-bd.sh
+```
+
+**Why:** Integration settings (github.org, jira.url) are database-only. See [Configuration Types](#configuration-types) below.
+
+### Step 6: Commit setup
+
+```bash
+git add .beads/ .gitattributes AGENTS.md scripts/setup-bd.sh
 git commit -m "chore: initialize beads for team issue tracking"
 git push
 ```
@@ -43,40 +88,160 @@ git push -u origin beads-sync
 git checkout main
 ```
 
+---
+
 ## Team Member Setup
 
 Each team member runs once:
 
 ```bash
-# Global Claude Code hooks (if using Claude)
+# 1. Global Claude Code hooks (if using Claude)
 bd setup claude
 
-# Verify
+# 2. Configure integrations (database-only settings)
+./scripts/setup-bd.sh
+
+# 3. Verify setup
 bd doctor
 ```
+
+### Expected bd doctor output
+
+A healthy setup shows:
+
+```
+✓ Installation: .beads/ directory found
+✓ Git Hooks: All recommended hooks installed
+✓ Sync Branch Hook Compatibility: Pre-push hook compatible
+✓ Database: version 0.30.3
+✓ Git Merge Driver: Correctly configured
+✓ Sync Branch Config: Configured (beads-sync)
+✓ Sync Branch Health: OK
+```
+
+---
 
 ## Git Worktree Setup
 
 For each new worktree:
 
 ```bash
-# Create worktree
+# 1. Create worktree
 git worktree add ../repo-worktree-name branch-name
 cd ../repo-worktree-name
 
-# REQUIRED: Disable daemon (worktrees share database)
-export BEADS_NO_DAEMON=1
+# 2. Initialize bd (worktrees need their own database)
+bd init --quiet
 
-# Install hooks in this worktree
+# 3. Install hooks in this worktree
 bd hooks install
 
-# Apply hook workaround (same as initial setup step 5)
+# 4. Apply hook workaround (same as initial setup step 3)
+
+# 5. Configure integrations
+./scripts/setup-bd.sh
 ```
 
-**Add to shell profile for convenience:**
+**IMPORTANT:** If NOT using sync-branch, disable the daemon in worktrees:
 ```bash
-# ~/.zshrc or ~/.bashrc
-alias bdw='BEADS_NO_DAEMON=1 bd'  # "bd worktree"
+export BEADS_NO_DAEMON=1
+```
+
+With sync-branch configured (recommended), the daemon works correctly across worktrees.
+
+### Smart bd wrapper (optional convenience)
+
+Add to `~/.zshrc` or `~/.bashrc`:
+
+```bash
+# Smart bd wrapper - auto-detects worktrees and disables daemon
+bd() {
+  if [ -f .git ] 2>/dev/null || \
+     [ "$(git rev-parse --git-dir 2>/dev/null)" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
+    BEADS_NO_DAEMON=1 command bd "$@"
+  else
+    command bd "$@"
+  fi
+}
+```
+
+---
+
+## Automated Worktree Setup (Claude Code)
+
+Automate worktree initialization with Claude Code SessionStart hooks.
+
+### Step 1: Create session setup script
+
+Copy [session-setup.sh](session-setup.sh) to `scripts/session-setup.sh`:
+
+```bash
+cp /path/to/beads-skill/templates/session-setup.sh scripts/
+chmod +x scripts/session-setup.sh
+```
+
+### Step 2: Add Claude Code hook
+
+Create `.claude/settings.json` (or merge with existing):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/session-setup.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+See [claude-settings.json](claude-settings.json) for the complete template.
+
+### Step 3: Commit automation
+
+```bash
+git add scripts/session-setup.sh .claude/settings.json
+git commit -m "chore: add bd automation for worktrees"
+git push
+```
+
+**Result:** When Claude Code starts in a new worktree, it automatically:
+1. Initializes bd database if missing
+2. Configures integration settings if missing
+
+---
+
+## Configuration Types
+
+bd has two types of configuration with different behaviors:
+
+| Type | Storage | Syncs via Git | Examples |
+|------|---------|---------------|----------|
+| **YAML** | `.beads/config.yaml` | Yes (if tracked) | `sync-branch`, `no-daemon` |
+| **Database** | `.beads/beads.db` | No | `github.org`, `jira.url` |
+
+### Why this matters
+
+- **YAML settings** (sync-branch) are shared when you track config.yaml
+- **Database settings** (integrations) must be configured per-clone/worktree
+- This is why we use `scripts/setup-bd.sh` for integrations
+
+### sync-branch vs sync.branch
+
+Two similar settings exist:
+- `sync-branch` in config.yaml (YAML, takes precedence)
+- `sync.branch` in database (shown by `bd config list`)
+
+**Recommendation:** Align both:
+```bash
+bd config set sync.branch beads-sync
 ```
 
 ---
@@ -94,7 +259,7 @@ This project uses [beads](https://github.com/steveyegge/beads) (`bd` command) fo
 Run `bd onboard` to get oriented.
 
 ### Git Worktrees
-**REQUIRED:** Disable daemon mode in worktrees:
+**REQUIRED:** Disable daemon mode in worktrees (unless using sync-branch):
 ```bash
 export BEADS_NO_DAEMON=1
 ```
@@ -154,6 +319,7 @@ git push  # Retry
 | Sync to git | `bd sync` |
 | Check blocked | `bd blocked --json` |
 | Health check | `bd doctor` |
+| Initialize (non-interactive) | `bd init --quiet` |
 
 ## Priority Levels
 
@@ -187,6 +353,12 @@ git push  # Retry
 
 **Tracking:** [steveyegge/beads#608](https://github.com/steveyegge/beads/issues/608)
 
+### Post-checkout shows daemon warning in worktrees
+
+**Symptom:** Hook suggests `BEADS_NO_DAEMON=1` even when sync-branch is configured.
+
+**Status:** The message is outdated. With sync-branch configured, the daemon works correctly in worktrees. You can ignore this warning.
+
 ---
 
 ## Troubleshooting
@@ -196,7 +368,7 @@ git push  # Retry
 bd sync --no-daemon
 ```
 
-**Daemon issues in worktrees:**
+**Daemon issues in worktrees (without sync-branch):**
 ```bash
 export BEADS_NO_DAEMON=1
 ```
@@ -206,7 +378,41 @@ export BEADS_NO_DAEMON=1
 bd sync --import-only
 ```
 
+**Integration settings empty in new worktree:**
+```bash
+./scripts/setup-bd.sh
+```
+
 **Check system health:**
 ```bash
 bd doctor
 ```
+
+**Verify configuration alignment:**
+```bash
+# Check YAML setting
+grep sync-branch .beads/config.yaml
+
+# Check database setting
+bd config get sync.branch
+```
+
+---
+
+## Template Files
+
+This directory includes templates you can copy to your project:
+
+| Template | Purpose | Destination |
+|----------|---------|-------------|
+| [setup-bd.sh](setup-bd.sh) | Configure integration settings | `scripts/setup-bd.sh` |
+| [session-setup.sh](session-setup.sh) | Claude Code SessionStart hook | `scripts/session-setup.sh` |
+| [claude-settings.json](claude-settings.json) | Claude Code hook config | `.claude/settings.json` |
+
+---
+
+## See Also
+
+- [BEADS-PARALLEL-AGENTS.md](BEADS-PARALLEL-AGENTS.md) - Parallel agent coordination
+- [Configuration Reference](../skills/beads/references/CONFIGURATION.md) - Detailed configuration docs
+- [beads repository](https://github.com/steveyegge/beads) - Official beads project

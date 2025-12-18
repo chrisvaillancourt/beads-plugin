@@ -17,7 +17,8 @@ This plugin provides just the skill.
 | Content | Source |
 |---------|--------|
 | `skills/beads/SKILL.md` | [Official skill](https://github.com/steveyegge/beads/blob/main/skills/beads/SKILL.md) |
-| `skills/beads/references/` | [Official references](https://github.com/steveyegge/beads/tree/main/skills/beads/references) |
+| `skills/beads/references/` | [Official references](https://github.com/steveyegge/beads/tree/main/skills/beads/references) + local additions |
+| `templates/` | Team setup guides and automation scripts |
 
 The skill covers:
 - bd vs TodoWrite decision framework
@@ -27,6 +28,8 @@ The skill covers:
 - Field usage (notes, design, acceptance-criteria)
 - Dependency patterns
 - Issue creation guidelines
+- Configuration types (YAML vs database)
+- Integration setup automation
 
 ## Complete Setup Guide
 
@@ -144,6 +147,43 @@ git push
 For team repos, see [templates/BEADS-TEAM-SETUP.md](templates/BEADS-TEAM-SETUP.md).
 
 For parallel agents with git worktrees, also see [templates/BEADS-PARALLEL-AGENTS.md](templates/BEADS-PARALLEL-AGENTS.md).
+
+### Templates Included
+
+| Template | Purpose |
+|----------|---------|
+| [templates/BEADS-TEAM-SETUP.md](templates/BEADS-TEAM-SETUP.md) | Complete team setup guide |
+| [templates/BEADS-PARALLEL-AGENTS.md](templates/BEADS-PARALLEL-AGENTS.md) | Git worktrees + parallel agents |
+| [templates/setup-bd.sh](templates/setup-bd.sh) | Configure integration settings |
+| [templates/session-setup.sh](templates/session-setup.sh) | Claude Code SessionStart hook |
+| [templates/claude-settings.json](templates/claude-settings.json) | Example Claude Code hook config |
+
+### Automation with Claude Code Hooks
+
+Automate bd initialization in git worktrees:
+
+1. Copy templates to your project:
+   ```bash
+   cp /path/to/beads-skill/templates/setup-bd.sh scripts/
+   cp /path/to/beads-skill/templates/session-setup.sh scripts/
+   chmod +x scripts/*.sh
+   ```
+
+2. Edit `scripts/setup-bd.sh` with your org/repo settings
+
+3. Add Claude Code hook (`.claude/settings.json`):
+   ```json
+   {
+     "hooks": {
+       "SessionStart": [{
+         "matcher": "startup",
+         "hooks": [{"type": "command", "command": "./scripts/session-setup.sh"}]
+       }]
+     }
+   }
+   ```
+
+Now when Claude Code starts in a new worktree, bd is automatically initialized and configured.
 
 ## See Also
 

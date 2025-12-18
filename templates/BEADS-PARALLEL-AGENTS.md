@@ -17,21 +17,9 @@ For teams running multiple AI agents in parallel using git worktrees.
 
 ## Environment Setup
 
-If you followed the main [README setup](../README.md#3-add-smart-bd-wrapper-global-one-time), the smart `bd` wrapper automatically detects worktrees and sets `BEADS_NO_DAEMON=1`. No additional configuration needed.
+With `sync-branch` configured (see [BEADS-TEAM-SETUP.md](BEADS-TEAM-SETUP.md)), the daemon works correctly across all worktrees. No additional environment setup needed.
 
-If you skipped that step, add to `~/.zshrc` (or `~/.bashrc`):
-
-```bash
-# Smart bd wrapper - auto-detects worktrees and disables daemon
-bd() {
-  if [ -f .git ] 2>/dev/null || \
-     [ "$(git rev-parse --git-dir 2>/dev/null)" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
-    BEADS_NO_DAEMON=1 command bd "$@"
-  else
-    command bd "$@"
-  fi
-}
-```
+> **Note:** If NOT using sync-branch, set `export BEADS_NO_DAEMON=1` in your shell profile for worktree compatibility.
 
 ## Per-Worktree Setup
 

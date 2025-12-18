@@ -48,25 +48,7 @@ bd setup claude
 
 This installs `SessionStart` and `PreCompact` hooks that run `bd prime` for dynamic context injection.
 
-### 3. Add smart bd wrapper (global, one-time)
-
-Add to `~/.zshrc` (or `~/.bashrc`):
-
-```bash
-# Smart bd wrapper - auto-detects worktrees and disables daemon
-bd() {
-  if [ -f .git ] 2>/dev/null || \
-     [ "$(git rev-parse --git-dir 2>/dev/null)" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
-    BEADS_NO_DAEMON=1 command bd "$@"
-  else
-    command bd "$@"
-  fi
-}
-```
-
-This automatically handles both regular repos and git worktree setups - no manual configuration needed per-project.
-
-### 4. Install this plugin
+### 3. Install this plugin
 
 ```bash
 # Add the repo as a marketplace (one-time setup)
@@ -76,7 +58,7 @@ claude plugin marketplace add chrisvaillancourt/beads-skill
 claude plugin install beads-skill
 ```
 
-### 5. Initialize beads in your project
+### 4. Initialize beads in your project
 
 ```bash
 cd your-project
@@ -84,9 +66,9 @@ bd init --quiet
 bd hooks install
 ```
 
-### 6. (Optional) Configure sync branch for clean git history
+### 5. (Recommended) Configure sync branch for team projects
 
-For team projects or if you want beads commits separate from code commits:
+For team projects or git worktrees, configure a dedicated sync branch:
 
 ```bash
 # Configure beads to use a dedicated sync branch
@@ -97,7 +79,9 @@ git checkout -b beads-sync
 git checkout main
 ```
 
-### 7. Apply post-checkout hook workaround (v0.30.2 bug)
+This keeps beads commits separate from feature branches and enables the daemon to work correctly across worktrees.
+
+### 6. Apply post-checkout hook workaround (v0.30.2 bug)
 
 See [Known Issues](#known-issues) below.
 

@@ -143,28 +143,9 @@ bd hooks install
 ./scripts/setup-bd.sh
 ```
 
-**IMPORTANT:** If NOT using sync-branch, disable the daemon in worktrees:
-```bash
-export BEADS_NO_DAEMON=1
-```
+With `sync-branch` configured (recommended), the daemon works correctly across worktrees. No additional configuration needed.
 
-With sync-branch configured (recommended), the daemon works correctly across worktrees.
-
-### Smart bd wrapper (optional convenience)
-
-Add to `~/.zshrc` or `~/.bashrc`:
-
-```bash
-# Smart bd wrapper - auto-detects worktrees and disables daemon
-bd() {
-  if [ -f .git ] 2>/dev/null || \
-     [ "$(git rev-parse --git-dir 2>/dev/null)" != "$(git rev-parse --git-common-dir 2>/dev/null)" ]; then
-    BEADS_NO_DAEMON=1 command bd "$@"
-  else
-    command bd "$@"
-  fi
-}
-```
+> **Note:** If NOT using sync-branch, you'll need `export BEADS_NO_DAEMON=1` in worktrees to prevent database locking.
 
 ---
 
